@@ -21,9 +21,12 @@ void loop() {
   else if(stato = 1)//Inizio della partita vera e propria
   {
     giocata();
+    vittoriaSconfitta();
   }
-  
-  
+  else if(stato == 3)//partita finita, resetto le variabili
+  {
+    
+  }
 }
 
 void primoValore()//Metodo di Controllo della variabile da raggiungere
@@ -65,7 +68,9 @@ void giocata()//metodo che gestisce, a turno, l'inserimento del valore dei dadi 
   }
 }
 
-void vittoriaSconfitta()
+void vittoriaSconfitta()//metodo che definisce chi ha vinto e chi ha perso una volta raggiunte determinate condizioni
 {
-  
+  nVincente == sommaDadiTotale ? ((turno == 0 ? (Serial.println("Il giocatore 1 ha vinto!!!"),stato = 3) : (Serial.println("Il giocatore 2 ha vinto!!!"),stato = 3)))
+  :(nVincente < sommaDadiTotale ? (turno == 0 ? (Serial.println("Il giocatore 1 ha perso!!!"),stato = 3) : (Serial.println("Il giocatore 2 ha perso!!!"),stato = 3)) 
+  : (sommaDadiTotale = sommaDadiTotale));
 }
