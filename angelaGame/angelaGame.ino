@@ -23,16 +23,12 @@ void loop() {
       Serial.println("Inserisci un mumero compreso tra 30 e 99");
       x = 1;
     }
-    //int a = Serial.read();
     primoValore();//Controllo della variabile inquanto deve rispettare determinate caratteristiche
   }
-  else if(stato = 1)//Inizio della partita vera e propria
+  else if(stato == 1)//Inizio della partita vera e propria
   {
-    if(x = 0)
-    {
-      turno == 0 ? Serial.println("Turno del giocatore 1") : Serial.println("Turno del giocatore 2");//Indica il turno in corso
-      Serial.println("Inserisci il numero da giocare compreso tra 1 e 6");
-    }
+    Serial.println(turno == 0 ? "Turno del giocatore 1" : "Turno del giocatore 2");//Indica il turno in corso
+    Serial.println("Inserisci il numero da giocare compreso tra 1 e 6");
     //int b = Serial.read();
     giocata();//Metodo che gestisce i turni e il controllo dei vari inserimenti
     vittoriaSconfitta();//Metodo che controlla ogni turno se si ha raggiunto le condizioni di fine partita e decreta il vincitore/perdente
@@ -45,6 +41,7 @@ void loop() {
     primoTurno = true;
     stato = 0;
     turno = 0;
+    x = 0;
   }
 }
 
@@ -53,59 +50,56 @@ void loop() {
 
 void primoValore()//Metodo di Controllo della variabile da raggiungere
 {
-  int s = Serial.read();
-  if(Serial.available())
+  while(Serial.available() == 0){}
+  int s = Serial.parseInt();
+  if(s < 30)
   {
-    if(s < 30)
-    {
-      Serial.println("il numero è troppo piccolo");
-    }
-    else if(s > 99)
-    {
-      Serial.println("il numero è troppo grande");
-    }
-    else
-    {
-      nVincente = s;
-      stato = 1;
-      x = 0;
-    }
+    Serial.println("il numero è troppo piccolo");
   }
+  if(s > 99)
+  {
+    Serial.println("il numero è troppo grande");
+  }
+  if(s >= 30 && s <= 99)
+  {
+    Serial.println("numero inserito correttamente");
+    nVincente = s;
+    stato = 1;
+  }
+  x = 0;
 }
 
 
 void giocata()//metodo che gestisce, a turno, l'inserimento del valore dei dadi e li somma 
 {
-  int d = Serial.read();
-  if(Serial.available())
-  {
-    primoTurno == true ?  
-    //Se è la prima mossa:
-    //Verifica se il numero è compreso tra 0 e 6
-    ((d < 0 ? Serial.println("il numero è troppo piccolo") : (d > 6 ? Serial.println("il numero è troppo grande") :
-     
-    //Se è compreso tra 0 e 6 
-    (sommaDadiTotale = sommaDadiTotale + d, nGiocatoPrima = 7, primoTurno = false,turno = turno == 0 ? 1 : 0)))) : 
+  while(Serial.available() == 0){}
+  int d = Serial.parseInt();
+  primoTurno == true ?  
+  //Se è la prima mossa:
+  //Verifica se il numero è compreso tra 0 e 6
+  ((d < 0 ? Serial.println("il numero è troppo piccolo") : (d > 6 ? Serial.println("il numero è troppo grande") :
+    
+  //Se è compreso tra 0 e 6 
+  (sommaDadiTotale = sommaDadiTotale + d, nGiocatoPrima = 7, primoTurno = false,turno = turno == 0 ? 1 : 0)))) : 
 
      
-    //Se non è la prima mossa:
-    //Verifica se il numero è compreso tra 1 e 6: effettua la somma, setta la mossa corrente come mossa giocata il turno precedente, cambia il turno e setta "false" la variabile che indica il primo turno
-    (d < 1 ? Serial.println("il numero è troppo piccolo") : (d > 6 ? Serial.println("il numero è troppo grande") : 
+  //Se non è la prima mossa:
+  //Verifica se il numero è compreso tra 1 e 6: effettua la somma, setta la mossa corrente come mossa giocata il turno precedente, cambia il turno e setta "false" la variabile che indica il primo turno
+  (d < 1 ? Serial.println("il numero è troppo piccolo") : (d > 6 ? Serial.println("il numero è troppo grande") : 
     
-    //Dopo di chè controlla se è gia stato utilizzato il turno precedente
-    (d == nGiocatoPrima ? Serial.println("il numero è già stato utilizzato il turno precedente") : 
+  //Dopo di chè controlla se è gia stato utilizzato il turno precedente
+  (d == nGiocatoPrima ? Serial.println("il numero è già stato utilizzato il turno precedente") : 
     
-    //Come ultima procedura controlla se il numero non corrisponde alla faccia opposta del dado del numero giocato il turno precedente
-    (d == 1 && nGiocatoPrima == 6 || 
-     d == 6 && nGiocatoPrima == 1 || 
-     d == 2 && nGiocatoPrima == 5 || 
-     d == 5 && nGiocatoPrima == 2 || 
-     d == 3 && nGiocatoPrima == 4 || 
-     d == 4 && nGiocatoPrima == 3) ? Serial.println("non puoi usare questo valore") : 
+  //Come ultima procedura controlla se il numero non corrisponde alla faccia opposta del dado del numero giocato il turno precedente
+  (d == 1 && nGiocatoPrima == 6 || 
+   d == 6 && nGiocatoPrima == 1 || 
+   d == 2 && nGiocatoPrima == 5 || 
+   d == 5 && nGiocatoPrima == 2 || 
+   d == 3 && nGiocatoPrima == 4 || 
+   d == 4 && nGiocatoPrima == 3) ? Serial.println("non puoi usare questo valore") : 
      
-     //Se il numero ha soddisfatto tutte le condizioni effettua la somma, setta la mossa corrente come mossa giocata il turno precedente, cambia il turno
-     (sommaDadiTotale = sommaDadiTotale + d, nGiocatoPrima = d, turno = turno == 0 ? 1 : 0))));
-  }
+  //Se il numero ha soddisfatto tutte le condizioni effettua la somma, setta la mossa corrente come mossa giocata il turno precedente, cambia il turno
+  (sommaDadiTotale = sommaDadiTotale + d, nGiocatoPrima = d, turno = turno == 0 ? 1 : 0))));
 }
 
 void vittoriaSconfitta()//metodo che definisce chi ha vinto e chi ha perso una volta raggiunte determinate condizioni
