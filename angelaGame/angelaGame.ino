@@ -9,6 +9,7 @@
   int stato = 0;//Indica i vari momenti del gioco 
   int turno = 0;// indica i turni dei due giocatori: 0 = Giocatore 1 , 1 = Giocatore 2
   int x = 0;
+   
 
 void setup() {
   // put your setup code here, to run once:
@@ -20,7 +21,7 @@ void loop() {
   {
     if(x == 0)
     {
-      Serial.println("Inserisci un mumero compreso tra 30 e 99");
+      Serial.println("Inserisci un mumero compreso tra 30 e 99 per fissare la meta da raggiungere");
       x = 1;
     }
     primoValore();//Controllo della variabile inquanto deve rispettare determinate caratteristiche
@@ -29,7 +30,6 @@ void loop() {
   {
     Serial.println(turno == 0 ? "Turno del giocatore 1" : "Turno del giocatore 2");//Indica il turno in corso
     Serial.println("Inserisci il numero da giocare compreso tra 1 e 6");
-    //int b = Serial.read();
     giocata();//Metodo che gestisce i turni e il controllo dei vari inserimenti
     vittoriaSconfitta();//Metodo che controlla ogni turno se si ha raggiunto le condizioni di fine partita e decreta il vincitore/perdente
   }
@@ -54,14 +54,17 @@ void primoValore()//Metodo di Controllo della variabile da raggiungere
   int s = Serial.parseInt();
   if(s < 30)
   {
+    Serial.println("numero inserito: " + String(s));
     Serial.println("il numero è troppo piccolo");
   }
   if(s > 99)
   {
+    Serial.println("numero inserito: " + String(s));
     Serial.println("il numero è troppo grande");
   }
   if(s >= 30 && s <= 99)
   {
+    Serial.println("numero inserito: " + String(s));
     Serial.println("numero inserito correttamente");
     nVincente = s;
     stato = 1;
@@ -74,43 +77,103 @@ void giocata()//metodo che gestisce, a turno, l'inserimento del valore dei dadi 
 {
   while(Serial.available() == 0){}
   int d = Serial.parseInt();
-  primoTurno == true ?  
-  //Se è la prima mossa:
-  //Verifica se il numero è compreso tra 0 e 6
-  ((d < 0 ? Serial.println("il numero è troppo piccolo") : (d > 6 ? Serial.println("il numero è troppo grande") :
-    
-  //Se è compreso tra 0 e 6 
-  (sommaDadiTotale = sommaDadiTotale + d, nGiocatoPrima = 7, primoTurno = false,turno = turno == 0 ? 1 : 0)))) : 
-
-     
-  //Se non è la prima mossa:
-  //Verifica se il numero è compreso tra 1 e 6: effettua la somma, setta la mossa corrente come mossa giocata il turno precedente, cambia il turno e setta "false" la variabile che indica il primo turno
-  (d < 1 ? Serial.println("il numero è troppo piccolo") : (d > 6 ? Serial.println("il numero è troppo grande") : 
-    
-  //Dopo di chè controlla se è gia stato utilizzato il turno precedente
-  (d == nGiocatoPrima ? Serial.println("il numero è già stato utilizzato il turno precedente") : 
-    
-  //Come ultima procedura controlla se il numero non corrisponde alla faccia opposta del dado del numero giocato il turno precedente
-  (d == 1 && nGiocatoPrima == 6 || 
-   d == 6 && nGiocatoPrima == 1 || 
-   d == 2 && nGiocatoPrima == 5 || 
-   d == 5 && nGiocatoPrima == 2 || 
-   d == 3 && nGiocatoPrima == 4 || 
-   d == 4 && nGiocatoPrima == 3) ? Serial.println("non puoi usare questo valore") : 
-     
-  //Se il numero ha soddisfatto tutte le condizioni effettua la somma, setta la mossa corrente come mossa giocata il turno precedente, cambia il turno
-  (sommaDadiTotale = sommaDadiTotale + d, nGiocatoPrima = d, turno = turno == 0 ? 1 : 0))));
+  if(primoTurno == true)
+  {
+    if(d < 0)
+    {
+      Serial.println("numero inserito: " + String(d));
+      Serial.println("il numero è troppo piccolo");
+    }
+    else
+    {
+      if(d > 6)
+      {
+        Serial.println("numero inserito: " + String(d));
+        Serial.println("il numero è troppo grande");
+      }
+      else
+      {
+        sommaDadiTotale = sommaDadiTotale + d;
+        d == 0 ? nGiocatoPrima = 7 : nGiocatoPrima = d;
+        primoTurno = false;
+        turno = turno == 0 ? 1 : 0;
+        Serial.println("numero inserito: " + String(d));
+        
+        Serial.println("numero raggiunto: " + String(sommaDadiTotale));
+      }
+    }
+  }
+  else
+  {
+    if(d < 1)
+    {
+      Serial.println("numero inserito: " + String(d));
+      Serial.println("il numero è troppo piccolo");
+    }
+    else
+    {
+      if(d > 6)
+      {
+        Serial.println("numero inserito: " + String(d));
+        Serial.println("il numero è troppo grande");
+      }
+      else
+      {
+        if(d == nGiocatoPrima)
+        {
+          Serial.println("numero inserito: " + String(d));
+          Serial.println("il numero è già stato utilizzato il turno precedente");
+        }
+        else
+        {
+          if(d == 1 && nGiocatoPrima == 6 || d == 6 && nGiocatoPrima == 1 || d == 2 && nGiocatoPrima == 5 || d == 5 && nGiocatoPrima == 2 || d == 3 && nGiocatoPrima == 4 || d == 4 && nGiocatoPrima == 3)
+          {
+            Serial.println("numero inserito: " + String(d));
+            Serial.println("non puoi usare questo valore");
+          }
+          else
+          {
+            sommaDadiTotale = sommaDadiTotale + d;
+            nGiocatoPrima = d;
+            turno = turno == 0 ? 1 : 0;
+            Serial.println("numero inserito: " + String(d));
+            Serial.println("numero raggiunto: " + String(sommaDadiTotale));
+          }
+        }
+      }
+    }
+  }
 }
+
+
 
 void vittoriaSconfitta()//metodo che definisce chi ha vinto e chi ha perso una volta raggiunte determinate condizioni
 {
-  //Se il numero impostato a inizio partita corrisponde alla somma decreta chi ha vinto in base al turno corrente
-  //N.B.: Nonostante il turno sia 0 vince il giocatore 2 perchè il tunro è stato cambiato alla fine del metodo precedente e pertanto sono stati invertiti i vincitori/perdenti
-  nVincente == sommaDadiTotale ? ((turno == 0 ? (Serial.println("Il giocatore 2 ha vinto!!!"),stato = 3) : (Serial.println("Il giocatore 1 ha vinto!!!"),stato = 3)))
+  if(nVincente == sommaDadiTotale)
+  {
+    if(turno == 0)
+    {
+      Serial.println("Il giocatore 2 ha vinto!!!");
+      stato = 3;
+    }
+    else
+    {
+      Serial.println("Il giocatore 1 ha vinto!!!");
+      stato = 3;
+    }
+  }
 
-  //Se il numero impostato a inizio partita è stato superato il giocatore che ha effettuato l'ultima mossa e quindi che ha superato il valore limite perde
-  :(nVincente < sommaDadiTotale ? (turno == 0 ? (Serial.println("Il giocatore 2 ha perso!!!"),stato = 3) : (Serial.println("Il giocatore 1 ha perso!!!"),stato = 3))
-  
-  //Se non rispecchia le precedenti situazioni non fa nulla(il "sommaDadiTotale = sommaDadiTotale" serve per completare le condizioni per usare l'operatore "?")
-  : (sommaDadiTotale = sommaDadiTotale));
+  if(nVincente < sommaDadiTotale)
+  {
+    if(turno == 0)
+    {
+      Serial.println("Il giocatore 2 ha perso!!!");
+      stato = 3;
+    }
+    else
+    {
+      Serial.println("Il giocatore 1 ha perso!!!");
+      stato = 3;
+    }
+  }
 }
