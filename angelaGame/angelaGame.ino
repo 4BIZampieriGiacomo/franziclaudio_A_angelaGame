@@ -1,16 +1,16 @@
 #include <LiquidCrystal.h>
 //LCD
-LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
 //BOTTONI
-int b1;   //diminuisce
-int b2;   //conferma
-int b3;   //aumenta
+const int b1 = 10;   //diminuisce
+const int b2 = 9;   //conferma
+const int b3 = 8;   //aumenta
 
 //Variabili
 bool primaAperturaProgramma = true;       //evita,durante il richiamo del setup , di inizializzare alcune variabili alla fine di ogni partita
 int x;                                    //variabile di controllo
-int nVincente;                            //meta che decreta la fine della partita 
+int nVincente;                            //meta che decreta la fine della partita
 int sommaDadiTotale;                      //indica il valore della somma di tutti i valori giocati
 int nGiocatoPrima;                        //back-up della giocata precedente
 bool primoTurno;                          //indica se il turno in corso è il primo della partita
@@ -19,6 +19,7 @@ int turno;                                // indica i turni dei due giocatori: 0
 bool winLose;                             //indica se ha vinto o perso
 int delayBase;                            //variabile impostata di base per tutti i delay
 bool decisioneMeta;                       //indica se l'utente ha confermato la scelta della meta
+bool setBaseValue;
 bool decisioneGiocata;                    //indica se l'utente ha confermato la scelta della giocata
 
 
@@ -44,6 +45,7 @@ void setup() {
   stato = 0;
   turno = 0;
   x = 0;
+  setBaseValue = false;
 }
 
 void loop() {
@@ -58,15 +60,16 @@ void loop() {
     }
 
     //Imposto la meta
-    while (decisioneMeta)
+    while (!decisioneMeta)
     {
       nVincente = selectValue(1);
-      if (nVincente != 0)
-      {
+      //delay(delayBase);
+//      if (nVincente != 0)
+//      {
         lcd.setCursor(13, 1);
         lcd.print(nVincente);
         delay(delayBase);
-      }
+      //}
     }
   }
   else if (stato == 1)        //Inizio della partita vera e propria
@@ -84,10 +87,10 @@ void loop() {
     lcd.setCursor(0, 1);
     lcd.print("tra 1 e 6: ");
     int nGiocato;
-    while(decisioneGiocata)
+    while (decisioneGiocata)
     {
       nGiocato = selectValue(primoTurno == true ? 2 : 3);
-      lcd.setCursor(12,1);
+      lcd.setCursor(12, 1);
       lcd.print(nGiocato);
       delay(delayBase);
     }
@@ -105,7 +108,7 @@ void loop() {
     //Serial.println("Totale: " + String(sommaDadiTotale));
 
     //controllo ogni turno se si ha raggiunto le condizioni di fine partita e decreta il vincitore/perdente
-    if (vittoriaSconfitta() != "") 
+    if (vittoriaSconfitta() != "")
     {
       lcd.clear();
       lcd.setCursor(0, 0);
@@ -126,90 +129,81 @@ void loop() {
 int selectValue(int condiz)
 {
   //bool finish = false;
-  int value;
+  int value = nVincente;
   bool case1 = value <= 99 && value >= 30;//condizione da rispettare per impostare la meta
-  bool case2 = value != (7 - nGiocatoPrima) && value < 7 && value >= 0;//condizione da rispettare per l'inserimento del numero del dado se è il primo turno
+  bool case1a =
+  bool case1b =  
+  bool case2 = value < 7 && value >= 0 && value != (7 - nGiocatoPrima);//condizione da rispettare per l'inserimento del numero del dado se è il primo turno
   bool case3 = value != nGiocatoPrima && value != (7 - nGiocatoPrima) && value < 7 && value > 0;//condizione da rispettare per l'inserimento del numero del dado
 
+
   //assegnazione valore base
-  if (condiz == 1) {
-    value = 30;
-  }
-  if (condiz == 2) {
-    value = 0;
-  }
-  if (condiz == 3) {
-    value = 1;
+  if (!setBaseValue)
+  {
+    if (condiz == 1) {
+      value = 30;
+    }
+    if (condiz == 2) {
+      value = 0;
+    }
+    if (condiz == 3) {
+      value = 1;
+    }
+    setBaseValue = true;
   }
   //lcd.setCursor(13, 1);
   //lcd.print(value);
 
-  //while (finish)
-  //{
-  //diminuisce
-  if (b1 == LOW)
+  bool choice = false;
+  while (!choice)
   {
-    if (condiz == 1)
+    //diminuisce
+    if (digitalRead(b1) == LOW)
     {
-      value--;
-      if (!case1) {
-        value++;
-      }
-    }
-    if (condiz == 2)
-    {
-      value--;
-      if (!case2) {
-        value++;
-      }
-    }
-    if (condiz == 3)
-    {
-      value--;
-      if (!case3) {
-        value++;
-      }
-    }
-    //lcd.setCursor(13, 1);
-    //lcd.print(value);
-  }
-
-  //conferma
-  if (b2 == LOW) {
-    //finish = true;
-    //return value;
-    condiz == 1 ? decisioneMeta = true : decisioneGiocata = true;
-  }
-
-  //aumenta
-  if (b3 == LOW)
-  {
-    if (condiz == 1)
-    {
-      value++;
-      if (!case1) {
+      if (condiz == 1 && case1)
+      {
         value--;
       }
-    }
-    if (condiz == 2)
-    {
-      value++;
-      if (!case2) {
+      if (condiz == 2 && case2)
+      {
         value--;
       }
-    }
-    if (condiz == 3)
-    {
-      value++;
-      if (!case3) {
+      if (condiz == 3 && case3)
+      {
         value--;
       }
+      //lcd.setCursor(13, 1);
+      //lcd.print(value);
+      choice = true;
     }
-    //lcd.setCursor(13, 1);
-    //lcd.print(value);
-  }
-  //}
 
+    //conferma
+    if (digitalRead(b2) == LOW) {
+      condiz == 1 ? decisioneMeta = true : decisioneGiocata = true;
+      setBaseValue = false;
+      choice = true;
+    }
+
+    //aumenta
+    if (digitalRead(b3) == LOW)
+    {
+      if (condiz == 1 && case1)
+      {
+        value++;
+      }
+      if (condiz == 2 && case2)
+      {
+        value++;
+      }
+      if (condiz == 3 && case3)
+      {
+        value++;
+      }
+      //lcd.setCursor(13, 1);
+      //lcd.print(value);
+      choice = true;
+    }
+  }
   return value;
 }
 
