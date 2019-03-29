@@ -1,11 +1,11 @@
 #include <LiquidCrystal.h>
 //LCD
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
 
 //BOTTONI
-const int b1 = 10;   //diminuisce
-const int b2 = 9;   //conferma
-const int b3 = 8;   //aumenta
+const int b1 = 4;   //diminuisce
+const int b2 = 5;   //conferma
+const int b3 = 6;   //aumenta
 
 //Variabili
 bool primaAperturaProgramma = true;       //evita,durante il richiamo del setup , di inizializzare alcune variabili alla fine di ogni partita
@@ -21,6 +21,7 @@ int delayBase;                            //variabile impostata di base per tutt
 bool decisioneMeta;                       //indica se l'utente ha confermato la scelta della meta
 bool setBaseValue;
 bool decisioneGiocata;                    //indica se l'utente ha confermato la scelta della giocata
+int nGiocato;
 
 
 void setup() {
@@ -32,7 +33,7 @@ void setup() {
     pinMode(b2, INPUT_PULLUP);
     pinMode(b3, INPUT_PULLUP);
     primaAperturaProgramma = false;
-    delayBase = 1500;
+    delayBase = 2000;
   }
 
   //variabili che vengono resettate a fine partita
@@ -46,6 +47,7 @@ void setup() {
   turno = 0;
   x = 0;
   setBaseValue = false;
+  nGiocato = 0;
 }
 
 void loop() {
@@ -53,6 +55,13 @@ void loop() {
   {
     if (x == 0)
     {
+      lcd.clear();
+      lcd.setCursor(1, 0);
+      lcd.print("*** ANGELA ***");
+      lcd.setCursor(1, 1);
+      lcd.print("***  GAME  ***");
+      delay(delayBase * 2);
+      lcd.clear();
       lcd.setCursor(0, 0);
       lcd.print("Inserisci numero");
       lcd.setCursor(0, 1);
@@ -63,60 +72,78 @@ void loop() {
     while (!decisioneMeta)
     {
       nVincente = selectValue(1);
-      //delay(delayBase);
-//      if (nVincente != 0)
-//      {
-        lcd.setCursor(13, 1);
-        lcd.print(nVincente);
-        delay(delayBase);
-      //}
+      lcd.setCursor(13, 1);
+      lcd.print(nVincente);
+      delay(delayBase / 6);
     }
   }
   else if (stato == 1)        //Inizio della partita vera e propria
   {
     //indico che giocatore deve giocare
     lcd.clear();
-    lcd.setCursor(4, 0);
-    lcd.print(turno == 0 ? "Player 1" : "Player 2");
+    String x;
+    String y;
+    if (turno == 0)
+    {
+      x = "Turno del";
+      y = "giocatore 1";
+    }
+    else
+    {
+      x = "Turno del";
+      y = "giocatore 2";
+    }
+    lcd.setCursor(3, 0);
+    lcd.print(x);
+    lcd.setCursor(3, 1);
+    lcd.print(y);
     delay(delayBase);
 
     //procedo con l'inserimento del numero da giocare
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.println("Inserisci numero");
+    lcd.print("Inserisci numero");
     lcd.setCursor(0, 1);
     lcd.print("tra 1 e 6: ");
-    int nGiocato;
-    while (decisioneGiocata)
+    while (!decisioneGiocata)
     {
-      nGiocato = selectValue(primoTurno == true ? 2 : 3);
+      int c = primoTurno == true ? 2 : 3;
+      nGiocato = selectValue(c);
       lcd.setCursor(12, 1);
       lcd.print(nGiocato);
-      delay(delayBase);
+      delay(delayBase / 6);
     }
 
     //riporto la somma e cambio il turno
     playerTurn(nGiocato);
-    decisioneGiocata == false;
+    decisioneGiocata = false;
     lcd.clear();
     lcd.setCursor(0, 0);
-    lcd.println("N° giocato: " + String(nGiocatoPrima));
+    lcd.print("N. giocato: " + String(nGiocatoPrima));
     lcd.setCursor(0, 1);
-    lcd.println("Totale: " + String(sommaDadiTotale));
+    lcd.print("Totale: " + String(sommaDadiTotale));
     delay(delayBase);
-    //Serial.println("N° giocato: " + String(nGiocatoPrima));
-    //Serial.println("Totale: " + String(sommaDadiTotale));
 
     //controllo ogni turno se si ha raggiunto le condizioni di fine partita e decreta il vincitore/perdente
-    if (vittoriaSconfitta() != "")
+    if ((nVincente == sommaDadiTotale) || (nVincente < sommaDadiTotale))
     {
       lcd.clear();
       lcd.setCursor(0, 0);
-      lcd.println("Il giocatore " + vittoriaSconfitta());
-      lcd.setCursor(3, 1);
-      lcd.println(winLose ? "ha vinto!!" : "ha perso!!");
-      //Serial.println("Il giocatore " + vittoriaSconfitta() + (winLose ? "ha vinto!!!" : "ha perso!!!"));
-      delay(delayBase);
+      String a = "*il giocatore " + vittoriaSconfitta() + "*";
+      lcd.print(a);
+      lcd.setCursor(0, 1);
+      String s;
+      if (winLose)
+      {
+        s = "*  ha vinto!!  *";
+      }
+      else
+      {
+        s = "*  ha perso!!  *";
+      }
+      lcd.print(s);
+      delay(delayBase * 2);
+      stato = 3;
     }
   }
   else if (stato == 3) {
@@ -128,31 +155,30 @@ void loop() {
 //metodo che permette in base alla fase del gioco di impostare la meta o il numero del dado giocato
 int selectValue(int condiz)
 {
-  //bool finish = false;
-  int value = nVincente;
-  bool case1 = value <= 99 && value >= 30;//condizione da rispettare per impostare la meta
-  bool case1a =
-  bool case1b =  
-  bool case2 = value < 7 && value >= 0 && value != (7 - nGiocatoPrima);//condizione da rispettare per l'inserimento del numero del dado se è il primo turno
-  bool case3 = value != nGiocatoPrima && value != (7 - nGiocatoPrima) && value < 7 && value > 0;//condizione da rispettare per l'inserimento del numero del dado
-
+  int value = condiz == 1 ? nVincente : nGiocato;
+  int opposto = 7 - nGiocatoPrima;
 
   //assegnazione valore base
   if (!setBaseValue)
   {
     if (condiz == 1) {
-      value = 30;
+      value = 50;
     }
     if (condiz == 2) {
-      value = 0;
+      value = 3;
     }
     if (condiz == 3) {
-      value = 1;
+      if (nGiocatoPrima == 3)
+      {
+        value = 1;
+      }
+      else
+      {
+        value = 3;
+      }
     }
     setBaseValue = true;
   }
-  //lcd.setCursor(13, 1);
-  //lcd.print(value);
 
   bool choice = false;
   while (!choice)
@@ -160,47 +186,83 @@ int selectValue(int condiz)
     //diminuisce
     if (digitalRead(b1) == LOW)
     {
-      if (condiz == 1 && case1)
+      if (condiz == 1 && value == 30)//se va sotto il range va al numero masimo
+      {
+        value = 99;
+      }
+      else if ((condiz == 2 && value == 0) || (condiz == 3 && value == 1))//se va sotto il range va al numero masimo
+      {
+        value = 6;
+      }
+      else if (condiz == 3 && (nGiocatoPrima == 6 || opposto == 6) && value == 2)
+      {
+        value = 5;
+      }
+      else if (condiz == 3 && (nGiocatoPrima == 3 || opposto == 3) && value == 5)
+      {
+        value = 2;
+      }
+      else if (condiz == 3 && (value - 1 == nGiocatoPrima || value - 1 == opposto))
+      {
+        value = value - 2;
+      }
+      else
       {
         value--;
       }
-      if (condiz == 2 && case2)
-      {
-        value--;
-      }
-      if (condiz == 3 && case3)
-      {
-        value--;
-      }
-      //lcd.setCursor(13, 1);
-      //lcd.print(value);
       choice = true;
     }
 
     //conferma
-    if (digitalRead(b2) == LOW) {
-      condiz == 1 ? decisioneMeta = true : decisioneGiocata = true;
+    if (digitalRead(b2) == LOW)
+    {
+      if (stato == 0)
+      {
+        decisioneMeta = true;
+      }
+      else if (stato == 1)
+      {
+        decisioneGiocata = true;
+      }
       setBaseValue = false;
       choice = true;
+      if (stato == 0)
+      {
+        stato = 1;
+      }
     }
 
     //aumenta
     if (digitalRead(b3) == LOW)
     {
-      if (condiz == 1 && case1)
+      if (condiz == 1 && value == 99)
+      {
+        value = 30;
+      }
+      else if (condiz == 2 && value == 6)
+      {
+        value = 0;
+      }
+      else if (condiz == 3 && value == 6)
+      {
+        value = 1;
+      }
+      else if (condiz == 3 && (nGiocatoPrima == 1 || opposto == 1) && value == 5)
+      {
+        value = 2;
+      }
+      else if (condiz == 3 && (nGiocatoPrima == 4 || opposto == 4) && value == 2)
+      {
+        value = 5;
+      }
+      else if (condiz == 3 && (value + 1 == nGiocatoPrima || value + 1 == opposto))
+      {
+        value = value + 2;
+      }
+      else
       {
         value++;
       }
-      if (condiz == 2 && case2)
-      {
-        value++;
-      }
-      if (condiz == 3 && case3)
-      {
-        value++;
-      }
-      //lcd.setCursor(13, 1);
-      //lcd.print(value);
       choice = true;
     }
   }
@@ -212,7 +274,6 @@ void playerTurn(int n)
 {
   if (primoTurno == true)
   {
-    //int n = selectValue(2);
     sommaDadiTotale = sommaDadiTotale + n;
     nGiocatoPrima = n;
     primoTurno = false;
@@ -220,7 +281,6 @@ void playerTurn(int n)
   }
   else
   {
-    //int n = selectValue(3);
     sommaDadiTotale = sommaDadiTotale + n;
     nGiocatoPrima = n;
     turno = turno == 0 ? 1 : 0;
@@ -235,28 +295,26 @@ String vittoriaSconfitta()
     if (turno == 0)
     {
       winLose = true;
-      return 2;
+      return "2";
     }
     else
     {
       winLose = true;
-      return 1;
+      return "1";
     }
-    stato = 3;
   }
   else if (nVincente < sommaDadiTotale)
   {
     if (turno == 0)
     {
       winLose = false;
-      return 2;
+      return "2";
     }
     else
     {
       winLose = false;
-      return 1;
+      return "1";
     }
-    stato = 3;
   }
   else
   {
